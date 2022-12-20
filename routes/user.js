@@ -5,7 +5,7 @@ const { body, validationResult } = require("express-validator");
 const {User, Contact} = require("../models/contactSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const secret = "RESTAPIAUTH";
+const secret = process.env.SECRET_KEY;
 const router = express.Router();
 router.use(bodyparser.json());
 //-------------------------------------------------------------------------------------------------------------------------------------
