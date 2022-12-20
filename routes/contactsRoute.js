@@ -4,12 +4,14 @@ const ObjectId = mongoose.Types.ObjectId
 const router = express.Router()
 const { Contact } = require("../models/contactSchema")
 const body_parser = require("body-parser")
-router.use(body_parser.json())
+router.use(body_parser.json());
+
+
 router.post("/import", async (req, res) => {
     try {
         const data = req.body
         data.forEach((item) => {
-            item.user = "63a15b279d52ce44a15042d5"
+            item.user = req.user;
         })
         const contact = await Contact.create(data)
         res.json(contact)
@@ -53,8 +55,10 @@ router.delete("/delete", async (req, res) => {
 router.get("/", async (req, res) => {
     try {
         const contacts = await Contact.find({
-            user: "63a15b279d52ce44a15042d5"
+            // user: "63a17e5922073a1c560fb40b"
+            user: req.user
         })
+        console.log(req.user);
         res.status(200).json({
             status: "Fetched",
             contacts: contacts
@@ -67,7 +71,7 @@ router.get("/", async (req, res) => {
     }
 })
 
-router.post("/search", async (req, res) => {
+router.get("/search", async (req, res) => {
     try {
         const contacts = await Contact.find({ Email: req.body.Email })
         res.status(200).json({
