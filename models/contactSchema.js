@@ -41,17 +41,17 @@ const contactSchema = mongoose.Schema({
     Email: {
         type: String,
         required: true,
-        unique: true
+        unique: false
     },
     Phone_number: {
-        type: Number,
+        type: String,
         required: true,
-        unique: true
+        unique: false
     },
     Country: {
         type: String,
         required: true,
-        upper_case: true
+        // upper_case: true
     },
     user: {
         type: ObjectId,
