@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyparser = require("body-parser");
 const { body, validationResult } = require("express-validator");
-const {User, Contact} = require("../models/contactSchema");
+const { User, Contact } = require("../models/contactSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const secret = "RESTAPIAUTH";
@@ -17,16 +17,16 @@ router.post(
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({
+        return res.status(406).json({
           errors: errors.array(),
           status: 400,
           message: "Enter a Valid Email ID"
         });
       }
-      const {Email, password, confirmPassword } = req.body;
+      const { Email, password, confirmPassword } = req.body;
 
-      if(password!==confirmPassword) {
-        return res.status(400).json({
+      if (password !== confirmPassword) {
+        return res.status(407).json({
           status: "Failed",
           message: "Confirm Password does not match"
         })
@@ -34,7 +34,7 @@ router.post(
 
       const user_Email = await User.findOne({ Email: Email });
       if (user_Email) {
-        return res.status(401).json({
+        return res.status(408).json({
           status: "failure",
           message: "Email aldready present",
         });
@@ -57,7 +57,7 @@ router.post(
         });
       });
     } catch (e) {
-      res.status(401).json({
+      res.status(409).json({
         status: "failure",
         message: e.message,
       });
@@ -77,7 +77,7 @@ router.post("/login", async (req, res) => {
     }
     bcrypt.compare(password, user.password, function (err, result) {
       if (err) {
-        return res.status(401).json({
+        return res.status(402).json({
           status: "failure",
           message: err,
         });
@@ -91,8 +91,8 @@ router.post("/login", async (req, res) => {
           secret
         );
 
-        
-          console.log(user);
+
+        console.log(user);
 
 
         return res.status(200).json({
@@ -101,19 +101,41 @@ router.post("/login", async (req, res) => {
           token,
         });
       } else {
-        res.status(401).json({
+        res.status(403).json({
           status: "failure",
           message: "password Incorrect",
         });
       }
     });
   } catch (e) {
-    res.status(401).json({
+    res.status(404).json({
       status: "failure",
       message: e.message,
     });
   }
 });
+
+
+// router.get("/contacts/logout", async (req,res)=> {
+//   try {
+//     // const allHeaders = await res.header();
+//     // console.log(allHeaders);
+//     const head = res.header();
+//     console.log(head)
+//     // req.headers.authorization = '';
+//     let a = JSON.stringify(head)
+//     return res.status(200).json({
+//       a
+
+//     })
+//   } catch (error) {
+//     return res.status(400).json({
+//       status: "failure",
+//       message: error.message,
+//     })
+//   }
+// })
+
 
 
 

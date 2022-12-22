@@ -9,12 +9,32 @@ router.use(body_parser.json());
 
 router.post("/import", async (req, res) => {
     try {
-        const data = req.body
-        data.forEach((item) => {
+        const contacts1 = await Contact.find({
+            // user: "63a17e5922073a1c560fb40b"
+            user: req.user
+        })
+        console.log(contacts1)
+        let myset = new Set()
+        contacts1.forEach((item) => {
+            myset.add(item.Email)
+        })
+
+
+        const data = req.body.importedData
+        // console.log(data)
+        // const data = req.body
+        const result = data.filter((item) => {
+            if (item.Name.length != 0 && !myset.has(item.Email))
+                return item
+        })
+
+        console.log(myset)
+        result.forEach((item) => {
             item.user = req.user;
         })
-        const contact = await Contact.create(data)
-        res.json(contact)
+        console.log(result)
+        const contacts = await Contact.create(result)
+        res.json(contacts)
     } catch (error) {
         res.json({
             message: error.message
@@ -23,22 +43,14 @@ router.post("/import", async (req, res) => {
 })
 
 router.delete("/delete", async (req, res) => {
-    const selectedIDs = req.body
+    const selectedIDs = req.body.source
     try {
-        if (selectedIDs.length) {
+        if (selectedIDs.length != 0) {
             selectedIDs.forEach(async (item) => {
                 const post = await Contact.find({ _id: item })
-                if (post.length != 0) {
-                    await Contact.deleteOne({ _id: item })
-                    res.json({
-                        message: "deleted succesfully"
-                    })
-                } else {
-                    res.json({
-                        message: "no such id"
-                    })
-                }
+                await Contact.deleteOne({ _id: item })
             })
+            res.json("deleted successfully")
         } else {
             res.json({
                 message: "please select ids and delete"
@@ -46,6 +58,7 @@ router.delete("/delete", async (req, res) => {
         }
     } catch (error) {
         res.json({
+            data: req.body,
             message: error.message
         })
     }
@@ -58,7 +71,6 @@ router.get("/", async (req, res) => {
             // user: "63a17e5922073a1c560fb40b"
             user: req.user
         })
-        console.log(req.user);
         res.status(200).json({
             status: "Fetched",
             contacts: contacts
@@ -71,19 +83,5 @@ router.get("/", async (req, res) => {
     }
 })
 
-router.get("/search", async (req, res) => {
-    try {
-        const contacts = await Contact.find({ Email: req.body.Email })
-        res.status(200).json({
-            status: "Fetched",
-            contacts: contacts
-        })
-    } catch (e) {
-        res.status(401).json({
-            status: "failed to fetch",
-            message: e.message
-        })
-    }
-})
 
 module.exports = router
